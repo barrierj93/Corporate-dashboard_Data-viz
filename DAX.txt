@@ -1,0 +1,146 @@
+## Columna 'Importe Ajustado'
+
+`Importe Ajustado = 'CCAA_por_años'[Importe] * 1000`
+
+
+--------------------------------------------------
+
+
+## Crecimiento acumulado
+`Crecimiento Acumulado = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    FILTER(
+        ALL('CCAA_por_años'[Año]),
+        'CCAA_por_años'[Año] <= EARLIER('CCAA_por_años'[Año])
+    )
+)`
+
+
+--------------------------------------------------
+
+
+## Media Crecimiento Anual Importe Neto (%)
+Media Crecimiento Anual Importe Neto (%) = 
+VAR PrimerValor = 
+    CALCULATE(
+        SUM('CCAA_por_años'[Importe]),
+        FILTER(
+            ALL('CCAA_por_años'),
+            'CCAA_por_años'[Año] = MIN('CCAA_por_años'[Año]) &&
+            TRIM('CCAA_por_años'[Concepto]) = "Importe neto de la cifra de negocios"
+        )
+    )
+VAR UltimoValor = 
+    CALCULATE(
+        SUM('CCAA_por_años'[Importe]),
+        FILTER(
+            ALL('CCAA_por_años'),
+            'CCAA_por_años'[Año] = MAX('CCAA_por_años'[Año]) &&
+            TRIM('CCAA_por_años'[Concepto]) = "Importe neto de la cifra de negocios"
+        )
+    )
+VAR AnosTotales = 
+    DATEDIFF(
+        MIN('CCAA_por_años'[Año]),
+        MAX('CCAA_por_años'[Año]),
+        YEAR
+    )
+RETURN
+    IF(
+        PrimerValor > 0 && AnosTotales > 0,
+        (POWER( UltimoValor / PrimerValor, 1 / AnosTotales ) - 1) * 100,
+        0
+    )
+
+
+
+--------------------------------------------------
+
+
+
+## Total Importe neto de la cifra de negocios
+Total Importe neto de la cifra de negocios = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Importe neto de la cifra de negocios"
+    }
+)
+
+
+--------------------------------------------------
+
+
+## Total Ingresos Financieros
+Total Ingresos Financieros = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Ingresos financieros",
+        "De participaciones en instrumentos de patrimonio",
+        "De valores negociables y otros instrumentos financieros",
+        "Ingresos Financieros de participaciones en instrumentos de patrimonio",
+        "Ingresos Financieros de valores negociables y otros instrumentos financieros"
+    }
+)
+
+
+--------------------------------------------------
+
+
+
+## Total Ingresos Operativos
+Total Ingresos Operativos = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Importe neto de la cifra de negocios",
+        "Prestación de servicios",
+        "Trabajos realizados por la empresa para su activo",
+        "Otros ingresos de explotación",
+        "Ingresos accesorios y otros de gestión corriente"
+    }
+)
+
+
+--------------------------------------------------
+
+
+
+## Total Otros ingresos de explotación
+Total Otros ingresos de explotación = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Otros ingresos de explotación"
+    }
+)
+
+
+--------------------------------------------------
+
+
+
+## Total Prestación de servicios
+Total Prestación de servicios = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Prestación de servicios"
+    }
+)
+
+
+--------------------------------------------------
+
+
+
+## Total Trabajos realizados por la empresa para su activo
+Total Trabajos realizados por la empresa para su activo = 
+CALCULATE(
+    SUM('CCAA_por_años'[Importe Ajustado]),
+    'CCAA_por_años'[Concepto] IN {
+        "Trabajos realizados por la empresa para su activo"
+    }
+)
